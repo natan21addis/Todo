@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: todo_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: todo
+      POSTGRES_PASSWORD: natanaddis
+      POSTGRES_DB: todo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - todo-network
+
+  hasura:
+    image: hasura/graphql-engine:v2.31.0
+    container_name: todo_hasura
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://todo:natanaddis@postgres:5432/todo
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"this-is-a-generic-HS256-secret-key-and-you-should-really-change-it"}'
+    ports:
+      - "8080:8080"
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 5s
+      timeout: 30s
+      retries: 3
+
+  express:
+    build:
+      context: ./express
+    container_name: todo_express
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      HASURA_ENDPOINT: http://hasura:8080/v1/graphql
+      HASURA_ADMIN_SECRET: myadminsecretkey
+      JWT_SECRET: this-is-a-generic-HS256-secret-key-and-you-should-really-change-it
+    volumes:
+      - ./express:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      hasura:
+        condition: service_healthy
+    networks:
+      todo-network:
+        aliases:
+          - express-service
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+volumes:
+  postgres_data:
+
+networks:
+  todo-network:
+    driver: bridge
