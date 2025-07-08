@@ -50,12 +50,15 @@ export const actions = {
     })
     commit('ADD_TODO', data.data)
   },
-  async updateTodo({ commit, state }, payload) {
-    const { data } = await axios.put(`${process.env.API_URL}/todos/${payload.id}`, payload,{
-      headers: { Authorization: `Bearer ${state.token}` }
-    })
-    commit('UPDATE_TODO', data.data)
-  },
+async updateTodo({ commit }, { id, title, completed }) {
+  const body = {}
+  if (title !== undefined) body.title = title
+  if (completed !== undefined) body.completed = completed
+
+  const response = await axios.put(`/api/todos/${id}`, body)
+  commit('updateTodoInState', response.data.data)
+}
+,
   async deleteTodo({ commit, state }, id) {
     await axios.delete(`${process.env.API_URL}/todos/${id}`, {
       headers: { Authorization: `Bearer ${state.token}` }
