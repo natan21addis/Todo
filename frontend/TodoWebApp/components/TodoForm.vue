@@ -1,49 +1,63 @@
 <template>
-  <v-form v-model="isValid" ref="form" @submit.prevent="submitForm">
-    <v-text-field
-      v-model="formData.title"
-      label="Title"
-      :rules="[v => !!v || 'Title is required']"
-      required
-    />
-    <v-textarea
-      v-model="formData.description"
-      label="Description"
-    />
-    <v-select
-      v-model="formData.priority"
-      :items="priorities"
-      label="Priority"
-    />
-    <v-btn color="primary" :disabled="!isValid" type="submit">
-      {{ isEdit ? 'Update' : 'Create' }}
-    </v-btn>
-  </v-form>
+  <v-dialog
+    :value="dialog"
+    persistent
+    max-width="500px"
+    @input="$emit('update:dialog', $event)"
+  >
+    <v-card>
+      <v-card-title>{{ isEdit ? 'Edit' : 'New' }} Todo</v-card-title>
+      <v-card-text>
+        <v-text-field
+          v-model="form.title"
+          ref="title"
+          label="Title"
+          autofocus
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn text @click="$emit('close')">Cancel</v-btn>
+        <v-btn color="primary" text @click="onSubmit">
+          {{ isEdit ? 'Update' : 'Add' }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 export default {
   props: {
-    todo: {
-      type: Object,
-      default: () => ({ title: '', description: '', priority: 'None' }),
-    },
-    isEdit: {
-      type: Boolean,
-      default: false,
-    },
+    dialog: Boolean,
+    todo: Object
+  },
+  computed: {
+    isEdit() {
+      return !!this.todo;
+    }
   },
   data() {
     return {
-      formData: { ...this.todo },
-      isValid: false,
-      priorities: ['None', 'Low', 'Medium', 'High'],
+      form: { title: '' }
     };
   },
-  methods: {
-    submitForm() {
-      this.$emit('submit', this.formData);
-    },
+  watch: {
+    todo: {
+      immediate: true,
+      handler(v) {
+        this.form = v ? { ...v } : { title: '' };
+      }
+    }
   },
+  methods: {
+    onSubmit() {
+      if (!this.form.title.trim()) {
+        alert("Todo title cannot be empty");
+        return;
+      }
+      this.$emit('save', { ...this.form });
+    }
+  }
 };
 </script>
