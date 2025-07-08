@@ -56,7 +56,7 @@ async function register(req, res) {
     const user = response.data.data.insert_users_one;
     const token = jwt.sign(
       {
-        sub: user.id,
+      
         email: user.email,
         "https://hasura.io/jwt/claims": {
           "x-hasura-allowed-roles": ["user"],

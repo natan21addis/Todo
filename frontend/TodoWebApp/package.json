@@ -1,0 +1,29 @@
+{
+  "name": "nuxt-starter",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/apollo": "3.0.7",
+    "@nuxtjs/vuetify": "^1.12.3",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-link": "^1.2.14",
+    "apollo-link-http": "^1.5.17",
+    "apollo-link-ws": "^1.0.20",
+    "graphql": "^15.10.1",
+    "graphql-tag": "^2.12.6",
+    "nuxt": "^2.15.8",
+    "vue-apollo": "^3.1.2",
+    "vuetify": "^2.7.2"
+  },
+  "devDependencies": {
+    "core-js": "^3.40.0",
+    "nuxt": "^2.18.1"
+  }
+}
